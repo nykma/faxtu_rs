@@ -1,4 +1,4 @@
-use crate::env::app_env;
+use crate::env::{app_env, ENV};
 use config::Config;
 use serde::Deserialize;
 
@@ -12,12 +12,22 @@ lazy_static::lazy_static! {
 #[derive(Default, Debug, Clone, Deserialize)]
 pub struct AppConfig {
     pub web: ConfigWeb,
+    pub db: ConfigDB,
 }
 
 #[derive(Default, Debug, Clone, Deserialize)]
 pub struct ConfigWeb {
     pub host: Vec<String>,
     pub port: i64,
+}
+
+#[derive(Default, Debug, Clone, Deserialize)]
+pub struct ConfigDB {
+    pub host: String,
+    pub port: i64,
+    pub user: String,
+    pub password: String,
+    pub database: String,
 }
 
 pub fn parse() -> AppConfig {
@@ -38,4 +48,19 @@ pub fn parse() -> AppConfig {
         .build()
         .expect("Failed to parse config");
     s.try_deserialize().expect("Failed to deserialize config")
+}
+
+/// Database connection schema
+pub fn db_link() -> String {
+    let postgres = format!(
+        "postgres://{}:{}@{}:{}/{}",
+        C.db.user, C.db.password, C.db.host, C.db.port, C.db.database
+    );
+    let in_memory_sqlite = "sqlite::memory:".to_string();
+    match app_env() {
+        ENV::Development => in_memory_sqlite,
+        ENV::Testing => in_memory_sqlite,
+        ENV::Staging => postgres,
+        ENV::Production => postgres,
+    }
 }
