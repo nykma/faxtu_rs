@@ -3,6 +3,8 @@ use tracing::level_filters::LevelFilter;
 use tracing_subscriber::EnvFilter;
 
 pub mod api;
+pub mod env;
+pub mod config;
 #[cfg(test)]
 mod tests;
 
@@ -18,20 +20,22 @@ async fn main() -> std::io::Result<()> {
                 .add_directive("tokio=info".parse().unwrap()),
         )
         .finish();
-
     tracing::subscriber::set_global_default(log_subscriber)
         .expect("Setting default subscriber failed");
 
-    HttpServer::new(|| {
+    // HTTP server
+    let mut server = HttpServer::new(|| {
         App::new()
             .service(api::ping::get_ping)
             .service(api::ping::post_ping)
-    })
-        .bind("[::1]:8100")?
-        .bind("127.0.0.1:8100")?
-        // graceful shutdown on SIGINT (2)
-        // Timeout process will be killed
-        .shutdown_timeout(30)
+    });
+    for host in &config::C.web.host {
+        server = server.bind(format!("{}:{}", host, config::C.web.port)).expect("Fail to start server: cannot recognize config.web");
+    };
+
+    // graceful shutdown on SIGINT (2)
+    // Timeout process will be killed
+    server.shutdown_timeout(30)
         .run()
         .await
 }

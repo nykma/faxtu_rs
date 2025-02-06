@@ -1,1 +1,4 @@
+/config/production.toml
+/config/main.toml
+/config/staging.toml
 /target
