@@ -1,14 +1,14 @@
 use serde::{Deserialize, Serialize};
 use actix_web::{web, get, post, HttpResponse, Responder};
 
-#[derive(Deserialize)]
-struct PingRequest {
-    name: String
+#[derive(Serialize, Deserialize)]
+pub struct PingRequest {
+    pub name: String
 }
 
-#[derive(Serialize)]
-struct PingResponse {
-    message: String
+#[derive(Serialize, Deserialize)]
+pub struct PingResponse {
+    pub message: String
 }
 
 #[get("/ping")]

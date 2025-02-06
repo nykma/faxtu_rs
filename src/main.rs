@@ -2,7 +2,9 @@ use actix_web::{App, HttpServer};
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::EnvFilter;
 
-mod api;
+pub mod api;
+#[cfg(test)]
+mod tests;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
