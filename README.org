@@ -1,0 +1,5 @@
+#+TITLE: Faxtu Rust
+
+My preset for developing Rust backend service.
+
+See also: [[https://github.com/nykma/faxtu][Rails version]]
